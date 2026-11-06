@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Get version from tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Verify version matches tag
+        run: |
+          grep -q "appVersion = \"$VERSION\"" Sources/BrewBar/Version.swift \
+            || { echo "Version.swift does not match tag"; exit 1; }
+
+      - name: Run tests
+        run: swift test
+
+      - name: Build
+        run: |
+          swift build -c release
+          tar -czf BrewBar-$VERSION-macos-arm64.tar.gz -C .build/release BrewBar
+          shasum -a 256 BrewBar-$VERSION-macos-arm64.tar.gz > BrewBar-$VERSION-macos-arm64.tar.gz.sha256
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: BrewBar-*-macos-arm64.tar.gz*
