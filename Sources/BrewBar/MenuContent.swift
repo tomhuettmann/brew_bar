@@ -31,11 +31,11 @@ struct MenuContent: View {
         }
         .disabled(model.count == 0)
 
-        Button(model.isBusy ? "Refreshing …" : "Refresh") {
+        Button(model.isRefreshing ? "Refreshing …" : "Refresh") {
             Task { await model.refresh() }
         }
         .keyboardShortcut("r")
-        .disabled(model.isBusy)
+        .disabled(model.isRefreshing)
 
         Menu("Settings") {
             Toggle("Include Auto-Updating Casks", isOn: $model.greedy)

@@ -11,7 +11,7 @@ final class CheckModel {
     private(set) var launchError: String?
     private(set) var lastBrewUpdate: Date?
     private(set) var hasChecked = false
-    private(set) var isBusy = false
+    private(set) var isRefreshing = false
 
     var greedy: Bool = CheckModel.savedFlag(greedyKey, default: false) {
         didSet { UserDefaults.standard.set(greedy, forKey: CheckModel.greedyKey) }
@@ -57,17 +57,17 @@ final class CheckModel {
 
     /// Fetches new package definitions (`brew update`). Waits if another command is running.
     func update() async {
-        await exclusively(wait: true) { await fetchDefinitions() }
+        await exclusively(wait: true, showsProgress: true) { await fetchDefinitions() }
     }
 
     /// Lists what is outdated. Skipped if another command is running, the next check catches up.
     func check() async {
-        await exclusively(wait: false) { await loadOutdated() }
+        await exclusively(wait: false, showsProgress: false) { await loadOutdated() }
     }
 
     /// Both one after the other, without another command in between.
     func refresh() async {
-        await exclusively(wait: true) {
+        await exclusively(wait: true, showsProgress: true) {
             await fetchDefinitions()
             await loadOutdated()
         }
@@ -87,15 +87,15 @@ final class CheckModel {
         }
     }
 
-    private func exclusively(wait: Bool, _ work: () async -> Void) async {
+    private func exclusively(wait: Bool, showsProgress: Bool, _ work: () async -> Void) async {
         if wait {
             await lock.acquire()
         } else if await !lock.tryAcquire() {
             return
         }
-        isBusy = true
+        if showsProgress { isRefreshing = true }
         await work()
-        isBusy = false
+        if showsProgress { isRefreshing = false }
         await lock.release()
     }
 
