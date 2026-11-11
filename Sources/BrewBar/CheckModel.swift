@@ -74,16 +74,24 @@ final class CheckModel {
     }
 
     func upgrade(_ command: UpgradeCommand) {
-        let source = TerminalLauncher.appleScript(for: command, skipConfirmation: skipsConfirmation)
-        let script = NSAppleScript(source: source)
-        var info: NSDictionary?
-        script?.executeAndReturnError(&info)
-        if let info {
-            let message = info[NSAppleScript.errorMessage] as? String ?? "Could Not Open Terminal"
+        do {
+            let url = try TerminalLauncher.writeScript(for: command, skipConfirmation: skipsConfirmation)
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-a", "Terminal", url.path]
+            let errors = Pipe()
+            process.standardError = errors
+            try process.run()
+            process.waitUntilExit()
+            if process.terminationStatus != 0 {
+                let output = String(data: errors.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
+                throw LaunchFailure(message: output?.trimmingCharacters(in: .whitespacesAndNewlines))
+            }
+            launchError = nil
+        } catch {
+            let message = (error as? LaunchFailure)?.message ?? error.localizedDescription
             launchError = message
             FileHandle.standardError.write(Data("BrewBar: \(message)\n".utf8))
-        } else {
-            launchError = nil
         }
     }
 
@@ -152,4 +160,9 @@ final class CheckModel {
             }
         }
     }
+}
+
+private struct LaunchFailure: Error {
+    let message: String?
+    init(message: String?) { self.message = (message?.isEmpty ?? true) ? "Could Not Open Terminal" : message }
 }

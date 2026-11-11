@@ -9,24 +9,24 @@ A tiny native macOS menu bar app that tells you when Homebrew has something to u
 ## Preview
 
 ```
-                              📦 3
-                       ┌────────────────────────────────────────────────┐
-                       │ 3 Packages Outdated                            │
-                       │ ────────────────────────────────────────────── │
-                       │ Formulae                                       │
-                       │   awscli  2.39.4 → 2.39.5                      │
-                       │ 🔒 node  22.1.0 → 22.2.0                       │
-                       │   yq  4.54.1 → 4.54.2                          │
-                       │ Casks                                          │
-                       │   intellij-idea  2026.2.4 → 2026.3             │
-                       │ ────────────────────────────────────────────── │
-                       │ Upgrade All                                    │
-                       │ Refresh                                     ⌘R │
-                       │ Settings                                     ▸ │
-                       │ ────────────────────────────────────────────── │
-                       │ Homebrew Updated 10:41                         │
-                       │ Quit BrewBar (0.1.0)                        ⌘Q │
-                       └────────────────────────────────────────────────┘
+       📦 3
+┌────────────────────────────────────────────────┐
+│ 3 Packages Outdated                            │
+│ ────────────────────────────────────────────── │
+│ Formulae                                       │
+│   awscli  2.39.4 → 2.39.5                      │
+│ 🔒 node  22.1.0 → 22.2.0                       │
+│   yq  4.54.1 → 4.54.2                          │
+│ Casks                                          │
+│   intellij-idea  2026.2.4 → 2026.3             │
+│ ────────────────────────────────────────────── │
+│ Upgrade All                                    │
+│ Refresh                                     ⌘R │
+│ Settings                                     ▸ │
+│ ────────────────────────────────────────────── │
+│ Homebrew Updated 10:41                         │
+│ Quit BrewBar (0.1.0)                        ⌘Q │
+└────────────────────────────────────────────────┘
 ```
 
 ## Features
@@ -63,20 +63,19 @@ swift build -c release
 
 ### Upgrading
 
-Click a package in the list to open Terminal with `brew upgrade` for it. **Upgrade All** runs
-`brew upgrade` for everything, with `--greedy` if auto-updating casks are included. BrewBar does not run
-upgrades itself, so you see the output and can enter your password if a cask asks for it.
+Click a package in the list to open Terminal with `brew upgrade` for it.
+**Upgrade All** runs `brew upgrade` for everything, with `--greedy` if auto-updating casks are included.
+BrewBar does not run upgrades itself, so you see the output and can enter your password if a cask asks for it.
 
-The first time, macOS asks whether BrewBar may control Terminal. Choose **OK**.
-BrewBar is not signed with an Apple Developer ID, so macOS may ask again after an update.
+Tip: In **Terminal → Settings → Profiles → Shell**, set *When the shell exits* to *Close if the shell exited cleanly*.
+Then the window closes after a successful upgrade and stays open if something fails.
 
-The list is checked every minute, so it catches up shortly after you upgrade, install or remove
-something. BrewBar starts upgrades with `--yes`, so Homebrew does not ask before it continues. Turn off
-*Skip Upgrade Confirmation* under **Settings** if you want to see what it is about to upgrade, including
-dependents, and confirm it yourself.
+The list is checked every minute, so it catches up shortly after you upgrade, install or remove something.
+BrewBar starts upgrades with `--yes`, so Homebrew does not ask before it continues.
+Turn off *Skip Upgrade Confirmation* under **Settings** if you want to see what it is about to upgrade, including dependents, and confirm it yourself.
 
-Only one Homebrew command runs at a time. If an update is already running, for example your own
-`brew upgrade`, BrewBar waits for the next check instead of reporting an error.
+Only one Homebrew command runs at a time.
+If an update is already running, for example your own `brew upgrade`, BrewBar waits for the next check instead of reporting an error.
 
 ### Commands
 
@@ -97,7 +96,8 @@ brew services stop brew-bar
 brew uninstall brew-bar
 ```
 
-BrewBar keeps its two settings in the user defaults. Remove them with `defaults delete BrewBar`.
+BrewBar keeps its two settings in the user defaults.
+Remove them with `defaults delete BrewBar`.
 
 ## Requirements
 
